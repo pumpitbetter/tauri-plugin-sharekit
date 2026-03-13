@@ -45,8 +45,7 @@ pub fn init<R: Runtime>() -> TauriPlugin<R> {
     Builder::new("sharekit")
         .invoke_handler(tauri::generate_handler![
             commands::share_text,
-            commands::share_file,
-            commands::save_to_gallery
+            commands::share_file
         ])
         .setup(|app, api| {
             #[cfg(mobile)]

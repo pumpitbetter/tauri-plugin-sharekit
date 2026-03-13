@@ -2,11 +2,9 @@ package app.tauri.share
 
 import android.app.Activity
 import android.content.ClipData
-import android.content.ContentValues
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
-import android.provider.MediaStore
 import android.webkit.WebView
 import android.net.Uri
 import androidx.activity.result.ActivityResult
@@ -33,14 +31,6 @@ class ShareFileOptions {
     lateinit var url: String
     var mimeType: String = "*/*"
     var title: String? = null
-}
-
-@InvokeArg
-class SaveToGalleryOptions {
-    lateinit var url: String
-    var mimeType: String = "image/png"
-    var filename: String? = null
-    var album: String? = null
 }
 
 @TauriPlugin
@@ -124,57 +114,5 @@ class SharePlugin(private val activity: Activity): Plugin(activity) {
             return
         }
         invoke.resolve()
-    }
-
-    /**
-     * Save an image file to the device gallery via MediaStore.
-     * The image will appear in the Photos app under the specified album.
-     */
-    @Command
-    fun saveToGallery(invoke: Invoke) {
-        val args = invoke.parseArgs(SaveToGalleryOptions::class.java)
-
-        val sourceFile = if (args.url.startsWith("file://")) {
-            File(Uri.parse(args.url).path!!)
-        } else {
-            File(args.url)
-        }
-
-        val displayName = args.filename ?: sourceFile.name
-        val albumName = args.album ?: "Pump It Better"
-
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.DISPLAY_NAME, displayName)
-            put(MediaStore.Images.Media.MIME_TYPE, args.mimeType)
-            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/$albumName")
-            put(MediaStore.Images.Media.IS_PENDING, 1)
-        }
-
-        val resolver = activity.contentResolver
-        val collection = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            MediaStore.Images.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY)
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-
-        val itemUri = resolver.insert(collection, values)
-            ?: return invoke.reject("Failed to create MediaStore entry")
-
-        try {
-            resolver.openOutputStream(itemUri)?.use { output ->
-                sourceFile.inputStream().use { input ->
-                    input.copyTo(output)
-                }
-            } ?: return invoke.reject("Failed to open output stream")
-
-            values.clear()
-            values.put(MediaStore.Images.Media.IS_PENDING, 0)
-            resolver.update(itemUri, values, null, null)
-
-            invoke.resolve()
-        } catch (e: Exception) {
-            resolver.delete(itemUri, null, null)
-            invoke.reject("Failed to save to gallery: ${e.message}")
-        }
     }
 }

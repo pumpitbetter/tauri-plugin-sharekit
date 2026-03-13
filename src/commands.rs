@@ -47,26 +47,3 @@ pub async fn share_file<R: Runtime>(
         )
         .map_err(|e| e.to_string())
 }
-
-#[command]
-pub async fn save_to_gallery<R: Runtime>(
-    app_handle: AppHandle<R>,
-    window: WebviewWindow<R>,
-    url: String,
-    mime_type: Option<String>,
-    filename: Option<String>,
-    album: Option<String>,
-) -> Result<(), String> {
-    app_handle
-        .share()
-        .save_to_gallery(
-            window,
-            url,
-            SaveToGalleryOptions {
-                mime_type,
-                filename,
-                album,
-            },
-        )
-        .map_err(|e| e.to_string())
-}
