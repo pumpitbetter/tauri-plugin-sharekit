@@ -54,3 +54,21 @@ pub struct ShareFilePayload {
     #[serde(flatten)]
     pub options: ShareFileOptions,
 }
+
+#[derive(Debug, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SaveToGalleryOptions {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub mime_type: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filename: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub album: Option<String>,
+}
+
+#[derive(Serialize)]
+pub struct SaveToGalleryPayload {
+    pub url: String,
+    #[serde(flatten)]
+    pub options: SaveToGalleryOptions,
+}

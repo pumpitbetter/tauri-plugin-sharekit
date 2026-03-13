@@ -31,4 +31,13 @@ impl<R: Runtime> ShareKit<R> {
     ) -> crate::Result<()> {
         Err(crate::Error::UnsupportedPlatform)
     }
+
+    pub fn save_to_gallery(
+        &self,
+        _window: WebviewWindow<R>,
+        _url: String,
+        _options: SaveToGalleryOptions,
+    ) -> crate::Result<()> {
+        Err(crate::Error::UnsupportedPlatform)
+    }
 }

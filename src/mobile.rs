@@ -49,4 +49,15 @@ impl<R: Runtime> ShareKit<R> {
             .run_mobile_plugin("shareFile", ShareFilePayload { url, options })
             .map_err(Into::into)
     }
+
+    pub fn save_to_gallery(
+        &self,
+        _window: WebviewWindow<R>,
+        url: String,
+        options: SaveToGalleryOptions,
+    ) -> crate::Result<()> {
+        self.0
+            .run_mobile_plugin("saveToGallery", SaveToGalleryPayload { url, options })
+            .map_err(Into::into)
+    }
 }
